@@ -1,7 +1,7 @@
 ﻿using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace Lab1
+namespace Szeminarium1
 {
     internal static class Program
     {
@@ -42,7 +42,7 @@ namespace Lab1
         {
             WindowOptions windowOptions = WindowOptions.Default;
             windowOptions.Title = "1. szeminárium - háromszög";
-            windowOptions.Size = new Silk.NET.Maths.Vector2D<int>(300, 500);
+            windowOptions.Size = new Silk.NET.Maths.Vector2D<int>(500, 500);
 
             graphicWindow = Window.Create(windowOptions);
 
@@ -51,23 +51,6 @@ namespace Lab1
             graphicWindow.Render += GraphicWindow_Render;
 
             graphicWindow.Run();
-        }
-
-        private static readonly HashSet<string> LoggedErrors = new();
-
-        private static void CheckGlError(string step)
-        {
-            GLEnum error;
-            while ((error = Gl.GetError()) != GLEnum.NoError)
-            {
-                string key = $"{step}:{error}";
-                if (LoggedErrors.Add(key))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[GL HIBA] '{step}' -> Kód: {error}");
-                    Console.ResetColor();
-                }
-            }
         }
 
         private static void GraphicWindow_Load()
@@ -92,10 +75,9 @@ namespace Lab1
             Gl.CompileShader(fshader);
 
             program = Gl.CreateProgram();
-            Gl.LinkProgram(program);
             Gl.AttachShader(program, vshader);
             Gl.AttachShader(program, fshader);
-            //Gl.LinkProgram(program);
+            Gl.LinkProgram(program);
             Gl.DetachShader(program, vshader);
             Gl.DetachShader(program, fshader);
             Gl.DeleteShader(vshader);
@@ -126,34 +108,58 @@ namespace Lab1
             Gl.BindVertexArray(vao);
 
             float[] vertexArray = new float[] {
-                -0.5f, -0.5f, 0.0f,
-                +0.5f, -0.5f, 0.0f,
-                 0.0f, +0.5f, 0.0f,
-                 1f, 1f, 0f
+                //felso
+                 0.0f,  0.10f, 0.0f,
+                 0.5f,  0.35f, 0.0f,
+                 0.0f,  0.60f, 0.0f,
+                -0.5f,  0.35f, 0.0f,
+
+                //bal
+                -0.4f, -0.25f, 0.0f,
+                 0.0f, -0.60f, 0.0f,
+                 0.0f,  0.10f, 0.0f,
+                -0.5f,  0.35f, 0.0f,
+
+                //jobb
+                 0.0f, -0.60f, 0.0f,
+                 0.4f, -0.25f, 0.0f,
+                 0.5f,  0.35f, 0.0f,
+                 0.0f,  0.10f, 0.0f
             };
 
             float[] colorArray = new float[] {
                 1.0f, 0.0f, 0.0f, 1.0f,
-                0.0f, 1.0f, 0.0f, 1.0f,
-                0.0f, 0.0f, 1.0f, 0.5f,
                 1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
+
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f
             };
 
             uint[] indexArray = new uint[] {
-                0, 2, 0,
-                2, 8, 3
+                0, 1, 2,
+                0, 2, 3,
+
+                4, 5, 6,
+                4, 6, 7,
+
+                8, 9, 10,
+                8, 10, 11
             };
 
             uint vertices = Gl.GenBuffer();
-            //Gl.BindBuffer(GLEnum.ArrayBuffer, vertices);
+            Gl.BindBuffer(GLEnum.ArrayBuffer, vertices);
             Gl.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)vertexArray.AsSpan(), GLEnum.StaticDraw);
-            CheckGlError("Vertices BufferData");
-            //Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, null);
-            Gl.VertexAttribPointer(3, 5, VertexAttribPointerType.Float, false, 0, null);
-            CheckGlError("VertexAttribPointer 0");
-            //Gl.EnableVertexAttribArray(0);
-            Gl.EnableVertexAttribArray(92358235);
-            CheckGlError("EnableVertexAttribArray 0");
+            Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, null);
+            Gl.EnableVertexAttribArray(0);
 
             uint colors = Gl.GenBuffer();
             Gl.BindBuffer(GLEnum.ArrayBuffer, colors);
@@ -169,9 +175,7 @@ namespace Lab1
 
             Gl.UseProgram(program);
 
-            //Gl.DrawElements(GLEnum.Triangles, (uint)indexArray.Length, GLEnum.UnsignedInt, null); // we used element buffer
-            Gl.DrawElements(GLEnum.Triangles, (uint)indexArray.Length, GLEnum.Float, null); // we used element buffer
-            CheckGlError("DrawElements rossz tipus");
+            Gl.DrawElements(GLEnum.Triangles, (uint)indexArray.Length, GLEnum.UnsignedInt, null); // we used element buffer
             Gl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
             Gl.BindVertexArray(vao);
 
